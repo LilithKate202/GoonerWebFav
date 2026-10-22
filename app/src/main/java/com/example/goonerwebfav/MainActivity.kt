@@ -1236,7 +1236,21 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.btnNotepad).setOnClickListener { showNotepadDialog() }
         findViewById<TextView>(R.id.btnClearLogin).setOnClickListener { clearWebLoginState() }
         findViewById<TextView>(R.id.btnAppearance).setOnClickListener { showAppearanceDialog() }
-        findViewById<TextView>(R.id.sbExportBtn)?.setOnClickListener { exportDataToJson() }
+        // 👇 导出按钮（带范围选择） 👇
+        findViewById<TextView>(R.id.sbExportBtn)?.setOnClickListener {
+            val options = arrayOf("导出全部分区", "只导出当前分区（$currentZone）")
+            AlertDialog.Builder(this)
+                .setTitle("选择导出范围")
+                .setItems(options) { _, which ->
+                    if (which == 0) {
+                        exportDataToJson(null) // 传 null 代表全部
+                    } else {
+                        exportDataToJson(currentZone) // 传当前分区名
+                    }
+                }
+                .setNegativeButton("取消", null)
+                .show()
+        }
         findViewById<TextView>(R.id.sbImportBtn)?.setOnClickListener { openJsonLauncher.launch(arrayOf("application/json")) }
         findViewById<TextView>(R.id.sbExportBookmarksBtn)?.setOnClickListener { exportHtmlBookmarks() }
         findViewById<TextView>(R.id.sbImportBookmarksBtn)?.setOnClickListener { openHtmlLauncher.launch(arrayOf("text/html")) }
@@ -2037,44 +2051,123 @@ class MainActivity : AppCompatActivity() {
         previewPlaceholder.visibility = View.VISIBLE; bottomNavBar.visibility = View.GONE; adjustFabPosition(false); loadCustomBackground()
     }
 
-    private fun exportDataToJson() {
+    private fun exportDataToJson(targetZone: String? = null) {
         lifecycleScope.launch {
-            val jsonArray = JSONArray()
-            db.appDao().getAllWebsites().forEach {
-                jsonArray.put(JSONObject().apply { put("url", it.url); put("zoneName", it.zoneName); put("title", it.title); put("tags", it.tags); put("note", it.note); put("visitCount", it.visitCount) })
+            // 从数据库拿数据
+            val allData = if (targetZone == null) {
+                db.appDao().getAllWebsites()
+            } else {
+                db.appDao().getWebsitesInZone(targetZone)
             }
-            jsonExportContent = jsonArray.toString(2); createJsonLauncher.launch("GoonerWebFav_Backup_${System.currentTimeMillis()}.json")
+
+            if (allData.isEmpty()) {
+                Toast.makeText(this@MainActivity, "没有可导出的数据", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            val jsonArray = JSONArray()
+            allData.forEach {
+                jsonArray.put(JSONObject().apply {
+                    put("url", it.url)
+                    put("zoneName", it.zoneName)
+                    put("title", it.title)
+                    put("tags", it.tags)
+                    put("note", it.note)
+                    put("visitCount", it.visitCount)
+                    put("lastVisit", it.lastVisit) // 👈 补上了这个关键字段
+                })
+            }
+
+            jsonExportContent = jsonArray.toString(2)
+            val fileName = if (targetZone == null) "GoonerWebFav_All_${System.currentTimeMillis()}.json" else "GoonerWebFav_${targetZone}_${System.currentTimeMillis()}.json"
+            createJsonLauncher.launch(fileName)
         }
     }
 
     private fun importDataFromJson(jsonStr: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val rootObj = JSONObject(jsonStr); val zoneDataObj = rootObj.optJSONObject("zoneData")
-                var added = 0; var newZones = 0
-                if (zoneDataObj != null) {
-                    val keys = zoneDataObj.keys()
-                    while (keys.hasNext()) {
-                        val zoneName = keys.next(); val array = zoneDataObj.getJSONArray(zoneName)
-                        if (db.appDao().getAllZones().none { it.name == zoneName }) { db.appDao().insertZone(ZoneEntity(name = zoneName)); newZones++ }
-                        for (i in 0 until array.length()) {
-                            val obj = array.getJSONObject(i); val url = obj.optString("url"); if (url.isBlank()) continue
-                            var tagsStr = ""; val tagsArray = obj.optJSONArray("tags")
-                            if (tagsArray != null) { val list = mutableListOf<String>(); for (j in 0 until tagsArray.length()) list.add(tagsArray.getString(j)); tagsStr = list.joinToString(",") }
-                            val entity = WebsiteEntity(url = url, zoneName = zoneName, title = obj.optString("title"), tags = tagsStr, note = obj.optString("note"), visitCount = obj.optInt("visitCount", 0))
-                            if (db.appDao().insertWebsite(entity) != -1L) added++
+                var added = 0
+                var newZones = 0
+                // 👇 关键修复：先获取数据库中已存在的 URL，用于去重
+                val existingUrls = mutableSetOf<String>()
+                db.appDao().getAllWebsites().forEach { existingUrls.add(it.url) }
+
+                if (jsonStr.trim().startsWith("{")) {
+                    // 兼容老版本的 { "zoneData": { ... } } 格式
+                    val rootObj = JSONObject(jsonStr)
+                    val zoneDataObj = rootObj.optJSONObject("zoneData")
+                    if (zoneDataObj != null) {
+                        val keys = zoneDataObj.keys()
+                        while (keys.hasNext()) {
+                            val zoneName = keys.next()
+                            val array = zoneDataObj.getJSONArray(zoneName)
+                            if (db.appDao().getAllZones().none { it.name == zoneName }) {
+                                db.appDao().insertZone(ZoneEntity(name = zoneName))
+                                newZones++
+                            }
+                            for (i in 0 until array.length()) {
+                                val obj = array.getJSONObject(i)
+                                val url = obj.optString("url")
+                                // 👇 如果 URL 为空，或已经在库里了，直接跳过
+                                if (url.isBlank() || existingUrls.contains(url)) continue
+
+                                var tagsStr = ""
+                                val tagsArray = obj.optJSONArray("tags")
+                                if (tagsArray != null) {
+                                    val list = mutableListOf<String>()
+                                    for (j in 0 until tagsArray.length()) list.add(tagsArray.getString(j))
+                                    tagsStr = list.joinToString(",")
+                                }
+
+                                val entity = WebsiteEntity(
+                                    url = url, zoneName = zoneName, title = obj.optString("title"),
+                                    tags = tagsStr, note = obj.optString("note"),
+                                    visitCount = obj.optInt("visitCount", 0), lastVisit = obj.optLong("lastVisit", 0L)
+                                )
+                                if (db.appDao().insertWebsite(entity) != -1L) {
+                                    existingUrls.add(url)
+                                    added++
+                                }
+                            }
                         }
                     }
-                } else {
+                } else if (jsonStr.trim().startsWith("[")) {
+                    // 兼容新版本直接导出的 [ { ... } ] 数组格式
                     val array = JSONArray(jsonStr)
                     for (i in 0 until array.length()) {
                         val obj = array.getJSONObject(i)
-                        val entity = WebsiteEntity(url = obj.getString("url"), zoneName = obj.optString("zoneName", "默认分区"), title = obj.optString("title", ""), tags = obj.optString("tags", ""), note = obj.optString("note", ""), visitCount = obj.optInt("visitCount", 0))
-                        if (db.appDao().insertWebsite(entity) != -1L) added++
+                        val url = obj.getString("url")
+                        val zoneName = obj.optString("zoneName", "默认分区")
+
+                        if (url.isBlank() || existingUrls.contains(url)) continue
+
+                        if (db.appDao().getAllZones().none { it.name == zoneName }) {
+                            db.appDao().insertZone(ZoneEntity(name = zoneName))
+                            newZones++
+                        }
+
+                        val entity = WebsiteEntity(
+                            url = url, zoneName = zoneName, title = obj.optString("title", ""),
+                            tags = obj.optString("tags", ""), note = obj.optString("note", ""),
+                            visitCount = obj.optInt("visitCount", 0), lastVisit = obj.optLong("lastVisit", 0L)
+                        )
+                        if (db.appDao().insertWebsite(entity) != -1L) {
+                            existingUrls.add(url)
+                            added++
+                        }
                     }
                 }
-                withContext(Dispatchers.Main) { Toast.makeText(this@MainActivity, "导入完成：新增 $added 个，新分区 $newZones 个", Toast.LENGTH_LONG).show(); loadData() }
-            } catch (e: Exception) { withContext(Dispatchers.Main) { Toast.makeText(this@MainActivity, "解析失败: ${e.message}", Toast.LENGTH_SHORT).show() } }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "导入完成：新增 $added 个，新分区 $newZones 个", Toast.LENGTH_LONG).show()
+                    loadData()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "解析失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
