@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_bg">
+
+    <!-- 最外层容器，包含主界面和所有覆盖层 -->
+    <RelativeLayout
+        android:id="@+id/mainRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- 背景图片层 -->
+        <ImageView
+            android:id="@+id/ivBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0.4"
+            android:visibility="gone" />
+
+        <!-- 主界面上下布局 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- ================= 上半部分：收藏区 ================= -->
+            <LinearLayout
+                android:id="@+id/topPanel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="58"
+                android:orientation="vertical"
+                android:background="@android:color/transparent">
+
+                <TextView
+                    android:id="@+id/infoBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:background="#E6000000"
+                    android:text="你已收藏 0 个网址！"
+                    android:textColor="@color/gold_text"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:singleLine="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    android:background="#33000000">
+
+                    <EditText
+                        android:id="@+id/websiteInput"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input"
+                        android:hint="粘贴网址，空格分隔可多个..."
+                        android:textColor="@color/gold_text"
+                        android:textColorHint="#73ffd700"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="14dp"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/saveWebsiteBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_btn_gold"
+                        android:text="收 藏"
+                        android:textColor="#2a1400"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:paddingHorizontal="20dp" />
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:paddingHorizontal="10dp"
+                    android:paddingBottom="6dp"
+                    android:background="#80000000">
+
+                    <LinearLayout
+                        android:id="@+id/zoneTabsContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#B0000000"
+                    android:padding="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <EditText
+                            android:id="@+id/searchInput"
+                            android:layout_width="0dp"
+                            android:layout_height="34dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_input"
+                            android:hint="搜索网址、标题、备注..."
+                            android:textColor="@color/gold_text"
+                            android:textColorHint="#66ffd700"
+                            android:textSize="12sp"
+                            android:paddingHorizontal="11dp"
+                            android:singleLine="true" />
+
+                        <TextView
+                            android:id="@+id/excludeVisitedBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="34dp"
+                            android:layout_marginStart="5dp"
+                            android:background="@drawable/bg_input"
+                            android:text="未访"
+                            android:textColor="@color/gold_text"
+                            android:textSize="12sp"
+                            android:gravity="center"
+                            android:paddingHorizontal="12dp" />
+
+                        <TextView
+                            android:id="@+id/selectModeBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="34dp"
+                            android:layout_marginStart="5dp"
+                            android:background="@drawable/bg_input"
+                            android:text="选择"
+                            android:textColor="@color/gold_text"
+                            android:textSize="12sp"
+                            android:gravity="center"
+                            android:paddingHorizontal="12dp" />
+                    </LinearLayout>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView android:id="@+id/chipAll" android:layout_width="wrap_content" android:layout_height="26dp" android:text="全部" android:textSize="11sp" android:textColor="#fff" android:background="@drawable/bg_tab_active" android:gravity="center" android:paddingHorizontal="12dp"/>
+                            <TextView android:id="@+id/chipAudio" android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginStart="4dp" android:text="音频" android:textSize="11sp" android:textColor="@color/text_dim" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                            <TextView android:id="@+id/chipImage" android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginStart="4dp" android:text="图片" android:textSize="11sp" android:textColor="@color/text_dim" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                            <TextView android:id="@+id/chipVideo" android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginStart="4dp" android:text="视频" android:textSize="11sp" android:textColor="@color/text_dim" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                            <TextView android:id="@+id/chipText" android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginStart="4dp" android:text="文本" android:textSize="11sp" android:textColor="@color/text_dim" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                            <TextView android:id="@+id/chipUnvisited" android:layout_width="wrap_content" android:layout_height="26dp" android:layout_marginStart="4dp" android:text="未访问" android:textSize="11sp" android:textColor="@color/text_dim" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/websiteList"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:padding="4dp"
+                    android:clipToPadding="false" />
+            </LinearLayout>
+
+            <!-- ================= 中间拖拽条 ================= -->
+            <LinearLayout
+                android:id="@+id/hDivider"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="#000000"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/gold_text" />
+            </LinearLayout>
+
+            <!-- ================= 下半部分：预览区 ================= -->
+            <LinearLayout
+                android:id="@+id/bottomPanel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="42"
+                android:orientation="vertical"
+                android:background="@android:color/transparent">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:background="#FF000000"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvPreviewFavBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="收藏"
+                            android:textColor="@color/pink_accent"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:background="@drawable/bg_input"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvFindBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="查找"
+                            android:textColor="@color/gold_text"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:background="@drawable/bg_input"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView android:id="@+id/btnLayoutSingle" android:layout_width="wrap_content" android:layout_height="28dp" android:text="单窗" android:textSize="11sp" android:textColor="#fff" android:background="@drawable/bg_tab_active" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        <TextView android:id="@+id/btnLayoutSplitV" android:layout_width="wrap_content" android:layout_height="28dp" android:layout_marginStart="4dp" android:text="左右" android:textSize="11sp" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        <TextView android:id="@+id/btnLayoutSplitH" android:layout_width="wrap_content" android:layout_height="28dp" android:layout_marginStart="4dp" android:text="上下" android:textSize="11sp" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+
+                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="@color/line_color" android:layout_marginHorizontal="8dp" />
+
+                        <TextView android:id="@+id/btnZoomOut" android:layout_width="wrap_content" android:layout_height="28dp" android:text="−" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        <TextView android:id="@+id/tvZoomLabel" android:layout_width="50dp" android:layout_height="28dp" android:text="100%" android:textColor="@color/gold_text" android:gravity="center" android:textSize="11sp" />
+                        <TextView android:id="@+id/btnZoomIn" android:layout_width="wrap_content" android:layout_height="28dp" android:text="+" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        <TextView android:id="@+id/btnZoomReset" android:layout_width="wrap_content" android:layout_height="28dp" android:layout_marginStart="4dp" android:text="1:1" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+
+                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="@color/line_color" android:layout_marginHorizontal="8dp" />
+                        <TextView android:id="@+id/btnTranslatePage" android:layout_width="wrap_content" android:layout_height="28dp" android:text="翻译" android:textSize="11sp" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="@color/line_color" android:layout_marginHorizontal="8dp" />
+
+                        <TextView android:id="@+id/btnFloatWindow" android:layout_width="wrap_content" android:layout_height="28dp" android:text="浮动窗口" android:textSize="11sp" android:textColor="@color/gold_text" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+
+                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="@color/line_color" android:layout_marginHorizontal="8dp" />
+
+                        <TextView android:id="@+id/btnRelease" android:layout_width="wrap_content" android:layout_height="28dp" android:text="脱离卡死" android:textSize="11sp" android:textColor="#ff9999" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- WebView 容器 -->
+                <FrameLayout
+                    android:id="@+id/previewContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="#FFFFFF">
+
+                    <ProgressBar
+                        android:id="@+id/webProgressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:layout_gravity="top"
+                        android:max="100"
+                        android:progressTint="@color/pink_accent"
+                        android:progressBackgroundTint="@android:color/transparent"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/previewPlaceholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#40000000">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="内嵌窗口" android:textColor="@color/gold_text" android:textSize="15sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="点击右下角【随机】，或从收藏列表点击网址" android:textColor="@color/text_dim" android:textSize="11sp" android:gravity="center" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- 底部导航条 -->
+                <LinearLayout
+                    android:id="@+id/bottomNavBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:background="#111111"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <TextView android:id="@+id/btnClear" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="清空" android:textSize="16sp" android:textColor="@color/gold_text" android:gravity="center"/>
+                    <TextView android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="刷新" android:textSize="16sp" android:textColor="@color/gold_text" android:gravity="center"/>
+                    <TextView android:id="@+id/btnToggleFab" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="扩展" android:textSize="16sp" android:textColor="@color/gold_text" android:gravity="center"/>
+                    <TextView android:id="@+id/btnGoBack" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="返回" android:textSize="16sp" android:textColor="@color/gold_text" android:gravity="center"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 右下角悬浮操作区 -->
+        <LinearLayout
+            android:id="@+id/fabContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="50dp"
+            android:gravity="end|bottom"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#261632"
+                android:layout_marginBottom="12dp"
+                android:padding="4dp">
+
+                <TextView android:id="@+id/fabAutoBtn" android:layout_width="68dp" android:layout_height="46dp" android:text="▶ 自动" android:textColor="#ff8fd6" android:textSize="11sp" android:gravity="center" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#40ff66cc" />
+                <TextView android:id="@+id/fabTimeBtn" android:layout_width="68dp" android:layout_height="46dp" android:text="⏱ 时间" android:textColor="#ff8fd6" android:textSize="11sp" android:gravity="center" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#40ff66cc" />
+                <TextView android:id="@+id/fabExtractText" android:layout_width="68dp" android:layout_height="46dp" android:text="📝文本" android:textColor="#ff8fd6" android:textSize="11sp" android:gravity="center" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#40ff66cc" />
+                <TextView android:id="@+id/fabExtractImg" android:layout_width="68dp" android:layout_height="46dp" android:text="🖼图片" android:textColor="#ff8fd6" android:textSize="11sp" android:gravity="center" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#40ff66cc" />
+                <TextView android:id="@+id/fabExtractVideo" android:layout_width="68dp" android:layout_height="46dp" android:text="🎬视频" android:textColor="#ff8fd6" android:textSize="11sp" android:gravity="center" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" />
+            </LinearLayout>
+
+            <TextView android:id="@+id/randomBtn" android:layout_width="68dp" android:layout_height="68dp" android:background="@color/pink_accent" android:text="🎲\n随机" android:textColor="#fff" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:shadowColor="#000" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="2" />
+        </LinearLayout>
+
+        <!-- 左下角扩展按钮 -->
+        <TextView
+            android:id="@+id/sidebarToggle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="50dp"
+            android:background="#5a5a6a"
+            android:text="⚙\n菜单"
+            android:textColor="#fff"
+            android:textSize="10sp"
+            android:gravity="center"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+        <!-- 👇👇👇 所有全屏覆盖层移到 mainRoot 内部 👇👇👇 -->
+
+        <!-- 画廊模式全屏覆盖层 -->
+        <LinearLayout
+            android:id="@+id/galleryOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#F2000000"
+            android:visibility="gone"
+            android:elevation="100dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:id="@+id/tvGalleryTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="已提取 0 张图片"
+                android:textColor="@color/gold_text"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="15dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGallery"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:clipToPadding="false" />
+
+            <TextView
+                android:id="@+id/btnCloseGallery"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="关闭画廊，返回网页"
+                android:textColor="#FFFF3366"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="#333333"
+                android:layout_margin="10dp" />
+
+            <ImageView
+                android:id="@+id/ivFullScreenImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FF000000"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <!-- 纯文本阅读模式覆盖层 -->
+        <LinearLayout
+            android:id="@+id/textReaderOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#FA000000"
+            android:visibility="gone"
+            android:elevation="102dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <!-- 顶部状态栏 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="15dp"
+                android:background="#1A1A1A">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="纯净阅读模式"
+                    android:textColor="#FFD700"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- 文本展示区 -->
+            <ScrollView
+                android:id="@+id/readerScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="20dp"
+                android:scrollbars="vertical">
+
+                <TextView
+                    android:id="@+id/tvReaderContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#EEEEEE"
+                    android:textSize="18sp"
+                    android:lineSpacingExtra="10dp"
+                    android:textIsSelectable="true" />
+            </ScrollView>
+
+            <!-- 👇 底部控制区（三排结构） 👇 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#1A1A1A"
+                android:padding="10dp">
+
+                <!-- 第一排：阅读工具 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/btnFontSmaller"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="45dp"
+                        android:text="A-"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:background="@drawable/bg_input"/>
+
+                    <TextView
+                        android:id="@+id/btnFontLarger"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="45dp"
+                        android:text="A+"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:background="@drawable/bg_input"
+                        android:layout_marginStart="10dp"/>
+
+                    <TextView
+                        android:id="@+id/btnPrevPage"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="45dp"
+                        android:text="上一页"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_input"
+                        android:layout_marginStart="10dp"/>
+
+                    <TextView
+                        android:id="@+id/btnNextPage"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="45dp"
+                        android:text="下一页"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_input"
+                        android:layout_marginStart="10dp"/>
+                </LinearLayout>
+
+
+
+                <!-- 第三排：底部退出按钮 -->
+                <TextView
+                    android:id="@+id/btnCloseTextReader"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="退出阅读模式"
+                    android:textColor="#FFFF3366"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#333333"
+                    android:layout_marginBottom="5dp" />
+            </LinearLayout>
+        </LinearLayout> <!-- ✅ textReaderOverlay 正确闭合 -->
+
+        <!-- 应用锁全屏遮罩层（必须是 mainRoot 的最后一个子节点，盖住一切） -->
+        <LinearLayout
+            android:id="@+id/lockOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FF000000"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:elevation="200dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔒 应用已锁定"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="20dp"/>
+
+            <EditText
+                android:id="@+id/etUnlockPwd"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:hint="输入4位密码"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:inputType="numberPassword"
+                android:backgroundTint="#FF66CC"
+                android:layout_marginBottom="20dp"/>
+
+            <TextView
+                android:id="@+id/btnUnlock"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="解 锁"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="#FF66CC" />
+        </LinearLayout>
+
+    </RelativeLayout> <!-- mainRoot 结束 -->
+
+    <!-- ================= 左侧侧边栏 ================= -->
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#1c1226"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="13dp"
+            android:background="#301a3e">
+
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="菜单区域" android:textColor="@color/pink_accent" android:textSize="15sp" android:textStyle="bold" />
+            <TextView android:id="@+id/btnCloseSidebar" android:layout_width="wrap_content" android:layout_height="28dp" android:text="关闭" android:textSize="12sp" android:textColor="@color/pink_accent" android:background="@drawable/bg_input" android:gravity="center" android:paddingHorizontal="12dp"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/btnExitApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="退出应用"
+                    android:textColor="#FF3366"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/bg_input" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#40000000" android:padding="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="内置网站" android:textColor="@color/gold_text" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+                    <LinearLayout android:id="@+id/sbBuiltinList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#40000000" android:padding="10dp" android:layout_marginTop="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="性能优化" android:textColor="@color/gold_text" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+                    <CheckBox android:id="@+id/cbPauseBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="有网页预览时暂停背景动画" android:textColor="@color/text_dim" android:buttonTint="@color/pink_accent" android:checked="true" />
+                    <CheckBox android:id="@+id/cbUnloadHidden" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="单窗口时卸载另一个窗口" android:textColor="@color/text_dim" android:buttonTint="@color/pink_accent" android:checked="true" />
+                    <CheckBox android:id="@+id/cbDisableScale" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="禁用缩放" android:textColor="@color/text_dim" android:buttonTint="@color/pink_accent" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp">
+
+                    <CheckBox
+                        android:id="@+id/cbAdBlock"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="开启广告拦截"
+                        android:textColor="@color/gold_text" />
+
+                    <TextView
+                        android:id="@+id/tvCustomAdRulesBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="自定义规则"
+                        android:textColor="@color/pink_accent"
+                        android:textSize="12sp"
+                        android:padding="8dp"
+                        android:background="@drawable/bg_input" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvAddWhiteListBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="将当前网站加入白名单（免拦截）"
+                    android:textColor="@color/gold_text"
+                    android:textSize="13sp"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/bg_input" />
+
+                <TextView
+                    android:id="@+id/tvManageWhiteListBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="管理白名单（点击删除）"
+                    android:textColor="@color/pink_accent"
+                    android:textSize="13sp"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/bg_input" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#40000000" android:padding="10dp" android:layout_marginTop="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="数据管理" android:textColor="@color/gold_text" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <TextView android:id="@+id/sbExportBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:text="导出数据" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                        <TextView android:id="@+id/sbImportBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="5dp" android:text="导入数据" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                        <TextView android:id="@+id/sbImportBookmarksBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:text="导入书签" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                        <TextView android:id="@+id/sbExportBookmarksBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="5dp" android:text="导出书签" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                        <TextView android:id="@+id/sbHealthBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:text="收藏体检" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                        <TextView android:id="@+id/sbStatsBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="5dp" android:text="收藏统计" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                        <TextView android:id="@+id/sbStorageBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:text="存储占用" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                        <TextView android:id="@+id/sbClearAllBtn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="5dp" android:text="清空数据" android:textColor="#ff8a95" android:background="@drawable/bg_input" android:gravity="center" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#40000000" android:padding="10dp" android:layout_marginTop="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="外观与工具" android:textColor="@color/gold_text" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+
+                    <TextView android:id="@+id/btnAppearance" android:layout_width="match_parent" android:layout_height="40dp" android:text="外观设置" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    <TextView android:id="@+id/btnNotepad" android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="5dp" android:text="记词本" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    <TextView android:id="@+id/btnClearLogin" android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="5dp" android:text="清除网页登录状态" android:textColor="#ff8a95" android:background="@drawable/bg_input" android:gravity="center" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#40000000" android:padding="10dp" android:layout_marginTop="10dp">
+                    <TextView android:id="@+id/sbHelpBtn" android:layout_width="match_parent" android:layout_height="40dp" android:text="查看使用说明" android:textColor="#fff" android:background="@drawable/bg_input" android:gravity="center" />
+                    <TextView
+                        android:id="@+id/btnSetAppLock"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="5dp"
+                        android:text="设置应用锁 (安全密码)"
+                        android:textColor="#fff"
+                        android:background="@drawable/bg_input"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- 开发者信息与赞助 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="30dp">
+
+                    <TextView
+                        android:id="@+id/btnSponsor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="☕ 关于与赞助"
+                        android:textColor="#FFD700"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_input" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Version 1.0.0 · Made with ❤️"
+                        android:textColor="#666666"
+                        android:textSize="10sp"
+                        android:layout_marginTop="10dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>
