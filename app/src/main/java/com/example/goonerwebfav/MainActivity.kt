@@ -1283,7 +1283,7 @@ class MainActivity : AppCompatActivity() {
                     when (which) {
                         0 -> {
                             // 👇 1. 替换成你真实的爱发电链接（等你以后注册了再改）
-                            val afdianUrl = "https://afdian.net/@你的用户名"
+                            val afdianUrl = "https://afdian.com/a/LilithKate"
                             try {
                                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(afdianUrl)))
                             } catch (e: Exception) {
