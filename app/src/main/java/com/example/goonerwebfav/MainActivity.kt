@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
         if (appLockPassword != null) {
             if (lastPauseTime == 0L || System.currentTimeMillis() - lastPauseTime > 5000) {
                 findViewById<LinearLayout>(R.id.lockOverlay).visibility = View.VISIBLE
-                findViewById<EditText>(R.id.etUnlockPwd).requestFocus()
+                //findViewById<EditText>(R.id.etUnlockPwd).requestFocus()
             }
         }
 
@@ -963,26 +963,41 @@ class MainActivity : AppCompatActivity() {
     (function() {
         var urls = [];
         var videos = document.querySelectorAll('video');
+        
+        // 智能寻找当前网页的“标题”
         var pageTitle = document.title || "网页视频";
+        var titleNode = document.querySelector('h1') || document.querySelector('.title') || document.querySelector('.video-title');
+        if (titleNode && titleNode.innerText) {
+            pageTitle = titleNode.innerText.trim();
+        }
+        
         for (var i = 0; i < videos.length; i++) {
-            var src = videos[i].src;
-            if (!src && videos[i].querySelector('source')) {
-                src = videos[i].querySelector('source').src;
+            var video = videos[i];
+            var src = video.src;
+            if (!src && video.querySelector('source')) {
+                src = video.querySelector('source').src;
             }
+            
             if (src) {
-                var poster = videos[i].poster || "";
+                // 1. 找封面：优先找 poster 属性
+                var poster = video.poster || video.getAttribute('data-poster') || video.getAttribute('data-cover') || "";
                 
-                // 🎯 智能找名字：先找 video 标签的 title -> 再找外层 a 标签的 title -> 最后用网页标题
-                var vName = videos[i].getAttribute('title') || videos[i].getAttribute('aria-label');
-                if (!vName) {
-                    var parentA = videos[i].closest('a');
-                    if (parentA && parentA.getAttribute('title')) {
-                        vName = parentA.getAttribute('title');
-                    }
+                // 2. 如果没封面，看看外层包裹的 div 里有没有 <img>
+                if (!poster && video.parentElement) {
+                    var img = video.parentElement.querySelector('img');
+                    if (img && img.src) poster = img.src;
                 }
-                if (!vName) vName = pageTitle;
                 
-                // 用 | 把链接、封面、名字拼起来
+                // 3. 名字：如果页面有标题，就用页面标题；如果有多个视频，在后面加个序号
+                var vName = pageTitle;
+                if (videos.length > 1) {
+                    vName = pageTitle + " (视频 " + (i + 1) + ")";
+                }
+                
+                // 处理相对路径的封面
+                if (poster && poster.startsWith('//')) poster = 'https:' + poster;
+                if (poster && poster.startsWith('/')) poster = window.location.origin + poster;
+                
                 urls.push(src + "|" + poster + "|" + vName);
             }
         }
@@ -1071,6 +1086,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 👇 重新绑定退出阅读模式按钮 👇
+        findViewById<TextView>(R.id.btnCloseTextReader)?.setOnClickListener {
+            val readerOverlay = findViewById<View>(R.id.textReaderOverlay)
+            readerOverlay?.visibility = View.GONE
+
+            // 顺便收起键盘，防止键盘挡住屏幕
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+
         // 👇 字体大小控制变量（默认18sp） 👇
         var currentFontSize = 18f
 
@@ -1147,6 +1172,13 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             findViewById<TextView>(R.id.tvReaderContent).text = cleanText
                             findViewById<View>(R.id.textReaderOverlay).visibility = View.VISIBLE
+                            // 👇 暴力清理可能残留的遮挡层，防止点不到按钮
+                            findViewById<View>(R.id.lockOverlay)?.visibility = View.GONE
+                            findViewById<View>(R.id.galleryOverlay)?.visibility = View.GONE
+
+// 收键盘，防止键盘挡住底部退出按钮
+                            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                            imm.hideSoftInputFromWindow(currentWeb.windowToken, 0)
                             // 每次打开自动滚到顶部
                             findViewById<ScrollView>(R.id.readerScrollView).scrollTo(0, 0)
                         }
@@ -1237,19 +1269,42 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
 
-        // 👇 关于与赞助（多平台选择 - 修复不显示列表的 Bug） 👇
+        // 👇 关于与赞助 👇
         findViewById<TextView>(R.id.btnSponsor)?.setOnClickListener {
             val platforms = arrayOf(
-                "☕ 前往爱发电支持开发者 (即将上线)",
-                "🌐 访问开发者主页 (即将上线)"
+                " 前往爱发电支持开发者",
+                " 访问我的 GitHub 项目主页",
+                " 查看项目说明"
             )
 
             AlertDialog.Builder(this)
-                .setTitle("关于与赞助\n(本软件完全免费，欢迎支持开发者持续更新)")
+                .setTitle("关于与赞助\n(本软件完全免费，欢迎支持开发者)")
                 .setItems(platforms) { _, which ->
                     when (which) {
-                        0, 1 -> {
-                            Toast.makeText(this, "开发者主页正在建设中，敬请期待！", Toast.LENGTH_SHORT).show()
+                        0 -> {
+                            // 👇 1. 替换成你真实的爱发电链接（等你以后注册了再改）
+                            val afdianUrl = "https://afdian.net/@你的用户名"
+                            try {
+                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(afdianUrl)))
+                            } catch (e: Exception) {
+                                Toast.makeText(this, "未找到浏览器", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        1 -> {
+                            // 👇 2. 这里已经填好了你真实的 GitHub 仓库链接
+                            val githubUrl = "https://github.com/LilithKate202/GoonerWebFav"
+                            try {
+                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl)))
+                            } catch (e: Exception) {
+                                Toast.makeText(this, "未找到浏览器", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        2 -> {
+                            AlertDialog.Builder(this)
+                                .setTitle("关于本项目")
+                                .setMessage("这是一款由个人开发者打造的定制化浏览器。\n主打无广告、轻量级与极客体验。\n\n感谢你的使用！")
+                                .setPositiveButton("关闭", null)
+                                .show()
                         }
                     }
                 }
@@ -1516,6 +1571,14 @@ class MainActivity : AppCompatActivity() {
         }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+
+                // 如果阅读模式开着，按物理返回键直接退出
+                val reader = findViewById<View>(R.id.textReaderOverlay)
+                if (reader != null && reader.visibility == View.VISIBLE) {
+                    reader.visibility = View.GONE
+                    return
+                }
+
                 // 1. 侧边栏开着，先关侧边栏
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START)

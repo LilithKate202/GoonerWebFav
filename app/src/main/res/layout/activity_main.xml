@@ -778,7 +778,7 @@
                         android:id="@+id/btnSponsor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="☕ 关于与赞助"
+                        android:text="关于与赞助"
                         android:textColor="#FFD700"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -788,7 +788,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Version 1.0.0 · Made with ❤️"
+                        android:text="Version 1.0.0 · Made with ❤LilithKate"
                         android:textColor="#666666"
                         android:textSize="10sp"
                         android:layout_marginTop="10dp" />
